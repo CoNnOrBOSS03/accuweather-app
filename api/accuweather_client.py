@@ -2,13 +2,7 @@ import json
 import time
 import urllib.request
 import urllib.error
-
-# i would never do this in a real application, but for the sake of
-# this project being accessible to you through GitHub, i've hardcoded
-# my API key
-
-API_KEY = "A1dbsGuM2W1ycJe4CsnCm1bgcrGmQdd0"
-
+from config import ACCUWEATHER_API_KEY
 
 class AccuWeatherClient:
     def __init__(self, api_key: str):
