@@ -3,6 +3,13 @@ import time
 import urllib.request
 import urllib.error
 from config import ACCUWEATHER_API_KEY
+import logging
+
+logging.basicConfig(
+    level=logging.DEBUG,  # Change to INFO or WARNING to reduce verbosity
+    format='[%(levelname)s] %(message)s'
+)
+
 
 class AccuWeatherClient:
     def __init__(self, api_key: str):
@@ -28,6 +35,8 @@ class AccuWeatherClient:
             # handle metric/imperial units
             if self.in_units(value):
                 return self.get_pretty_units(value)
+            if value is None:
+                return "Value Not Found"
             return value
 
     def in_units(self, conditions_val):  # checks if given value is a dict, and contains
@@ -41,6 +50,7 @@ class AccuWeatherClient:
 
     def get_data(self, url: str):
         try:
+            print(f"Requesting URL: {url}")
             with urllib.request.urlopen(url) as response:
                 if response.status != 200:
                     raise Exception(f"Accuweather API responded with status code {response.status}")
@@ -77,5 +87,3 @@ class AccuWeatherClient:
             raise
         except Exception as e:
             raise
-
-

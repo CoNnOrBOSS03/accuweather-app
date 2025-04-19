@@ -1,3 +1,5 @@
+import logging
+
 from customtkinter import *
 from api.accuweather_client import AccuWeatherClient
 
@@ -14,7 +16,7 @@ class App(CTk):
         self.geometry("700x400")
         self.minsize(700, 400)
         self.maxsize(700, 400)
-        self.title(f"SE Interview Project")
+        self.title(f"SE Interview Project - Connor Verra")
 
         # widgets
         self.left_frame = CTkFrame(master=self, fg_color="transparent")
@@ -57,11 +59,14 @@ class App(CTk):
             return
         try:
             client = AccuWeatherClient(api_key=self.api_key)
+            client.set_conditions_from_city(city_name)
             print(client.get_result("WeatherText"))
-        except ValueError:
+        except ValueError as e:
             self.set_error_text("City not found: please try again!")
+            logging.error(str(e))
         except Exception as e:
             self.set_error_text("A miscellaneous error occurred.")
+            logging.error(str(e))
 
 
     def set_error_text(self, text: str):
