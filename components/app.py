@@ -1,9 +1,11 @@
 from customtkinter import *
-
+from api.accuweather_client import AccuWeatherClient
 
 class App(CTk):
-    def __init__(self):
+    def __init__(self, api_key):
         super().__init__()
+
+        self.api_key = api_key
 
         # appearance settings
         set_appearance_mode("dark")
@@ -34,8 +36,9 @@ class App(CTk):
         self.search_bar = CTkEntry(master=self.secondary_frame,
                                    placeholder_text="Enter City Name")
         self.search_button = CTkButton(master=self.secondary_frame,
-                                       text="Search")
-        self.error_label = CTkLabel(master=self.secondary_frame, text="ERROR: Test error message. blebleblebble")
+                                       text="Search",
+                                       command=self.search_button_callback)
+        self.error_label = CTkLabel(master=self.secondary_frame, text="")
 
         self.right_frame = CTkFrame(master=self, corner_radius=0)
         self.right_frame.place(relx=0.5, rely=0, relheight=1, relwidth=0.5)
@@ -45,3 +48,25 @@ class App(CTk):
         self.search_bar.place(relx=0.1, rely=0.35, relheight=0.1, relwidth=0.4)
         self.search_button.place(relx=0.6, rely=0.35, relheight=0.1, relwidth=0.3)
         self.error_label.place(relx=0.10, rely=0.6, relheight=0.2, relwidth=.8)
+
+    def search_button_callback(self):
+        # check to make sure search bar is not empty
+        city_name = self.search_bar.get()
+        if city_name == "":
+            self.set_error_text("Please enter a city name!")
+            return
+        try:
+            client = AccuWeatherClient(api_key=self.api_key)
+            print(client.get_result("WeatherText"))
+        except ValueError:
+            self.set_error_text("City not found: please try again!")
+        except Exception as e:
+            self.set_error_text("A miscellaneous error occurred.")
+
+
+    def set_error_text(self, text: str):
+        self.error_label.configure(text=text)
+        self.error_label.after(3000, lambda: self.error_label.configure(text=""))
+
+    def toggle_units(self):
+        pass
