@@ -15,11 +15,11 @@ class WeatherDisplay(CTkScrollableFrame):
         def __init__(self, master, condition_name, condition_value_dict):
             super().__init__(master=master, height=35)
 
-            self.units = None
+            self.units = "imperial"
 
             # handling data with metric/imperial units - should be expanded on to handle all accuweather data
             self.condition_value_dict = condition_value_dict
-            self.condition_value = self.clean_condition_value(self.condition_value_dict)
+            self.condition_value = self.clean_condition_value()
 
             self.conditionNameLabel = CTkLabel(master=self, text=f"{condition_name}: ")
             self.conditionValueLabel = CTkLabel(master=self, text=self.condition_value)
@@ -28,23 +28,28 @@ class WeatherDisplay(CTkScrollableFrame):
             self.conditionValueLabel.place(relx=0.6, rely=0.1, relwidth=0.35, relheight=0.8)
 
         def toggle_units(self):
-            pass
+            if self.condition_value_dict.get("dual-unit"):
+                if self.units == "imperial":
+                    self.units = "metric"
+                else:
+                    self.units = "imperial"
+                self.conditionValueLabel.configure(text=self.clean_condition_value())
 
-        def clean_condition_value(self, condition_value_dict: dict):
+        def clean_condition_value(self):
             condition_value = ""
-            if condition_value_dict.get("dual-unit") is False:
-                condition_value = condition_value_dict.get('value')
+            if self.condition_value_dict.get("dual-unit") is False:
+                condition_value = self.condition_value_dict.get('value')
                 if isinstance(condition_value, bool):
                     condition_value = self.handle_boolean(condition_value)
             else:
-                self.units = "imperial"
-                condition_value = condition_value_dict.get(self.units)
+                condition_value = self.condition_value_dict.get(self.units)
             return condition_value
 
         def handle_boolean(self, bool: bool):
             if bool:
                 return "Yes"
             return "No"
+
 
     def __init__(self, master, api_key):
         super().__init__(master=master, label_text="Current Conditions")

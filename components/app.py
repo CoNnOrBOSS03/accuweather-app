@@ -45,7 +45,10 @@ class App(CTk):
         self.rightFrame.place(relx=0.5, rely=0, relheight=1, relwidth=0.5)
 
         self.weatherDisplay = WeatherDisplay(master=self.rightFrame, api_key=api_key)
-        self.weatherDisplay.place(relx=0.05, rely=0.05, relwidth=0.9, relheight=0.9)
+        self.weatherDisplay.place(relx=0.05, rely=0.05, relwidth=0.9, relheight=0.8)
+        self.toggleUnitsButton = CTkButton(master=self.rightFrame, text="Toggle Units",
+                                           command=self.weatherDisplay.toggle_units)
+        self.toggleUnitsButton.place(relx=0.05, rely=0.88, relwidth=0.9, relheight=0.07)
 
         # placing widgets
         self.promptTextBox.place(relx=0.15, rely=0.1, relheight=0.2, relwidth=.7)
