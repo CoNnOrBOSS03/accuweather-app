@@ -4,6 +4,7 @@ from api.accuweather_client import AccuWeatherClient
 DISPLAYED_CONDITIONS = {
     "WeatherText": "Conditions",
     "HasPrecipitation": "Currently Raining",
+    "Precip1hr": "Hourly Rainfall",
     "Temperature": "Temperature",
     "RelativeHumidity": "Humidity",
     "UVIndex": "UV Index"
@@ -17,7 +18,6 @@ class WeatherDisplay(CTkScrollableFrame):
 
             self.units = "imperial"
 
-            # handling data with metric/imperial units - should be expanded on to handle all accuweather data
             self.condition_value_dict = condition_value_dict
             self.condition_value = self.clean_condition_value()
 
@@ -36,7 +36,7 @@ class WeatherDisplay(CTkScrollableFrame):
                 self.conditionValueLabel.configure(text=self.clean_condition_value())
 
         def clean_condition_value(self):
-            condition_value = ""
+            # handling data with metric/imperial units - should be expanded on to handle all accuweather data
             if self.condition_value_dict.get("dual-unit") is False:
                 condition_value = self.condition_value_dict.get('value')
                 if isinstance(condition_value, bool):
@@ -45,11 +45,10 @@ class WeatherDisplay(CTkScrollableFrame):
                 condition_value = self.condition_value_dict.get(self.units)
             return condition_value
 
-        def handle_boolean(self, bool: bool):
-            if bool:
+        def handle_boolean(self, bool_val: bool):
+            if bool_val:
                 return "Yes"
             return "No"
-
 
     def __init__(self, master, api_key):
         super().__init__(master=master, label_text="Current Conditions")

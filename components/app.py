@@ -75,5 +75,3 @@ class App(CTk):
         self.errorLabel.configure(text=text)
         self.errorLabel.after(3000, lambda: self.errorLabel.configure(text=""))
 
-    def toggle_units(self):
-        pass
