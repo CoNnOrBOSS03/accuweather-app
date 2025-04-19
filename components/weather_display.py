@@ -59,10 +59,8 @@ class WeatherDisplay(CTkScrollableFrame):
         try:
             self.client.set_conditions_from_city(city_name)
             self.configure(label_text=f"Current Conditions for {city_name}")
-            print(self.client.get_result("Temperature").get("imperial"))
-            print(self.client.get_result("WeatherText"))
 
-            self.clear_conditions()
+            self._clear_conditions()
             for key, label in DISPLAYED_CONDITIONS.items():
                 condition_value_dict = self.client.get_result(key)
                 self.conditionInfoCards.append(
@@ -72,25 +70,24 @@ class WeatherDisplay(CTkScrollableFrame):
                         condition_value_dict=condition_value_dict
                     )
                 )
-            self.display_conditions()
-
+            self._display_conditions()
 
         except ValueError:
             raise
         except Exception:
             raise
 
-    def display_conditions(self):
+    def _display_conditions(self):
         for card in self.conditionInfoCards:
             card: WeatherDisplay.ConditionInfoCard
             card.pack(padx=5, pady=1, fill=X, expand=False)
 
-    def toggle_units(self):
+    def _toggle_units(self):
         for card in self.conditionInfoCards:
             card: WeatherDisplay.ConditionInfoCard
             card.toggle_units()
 
-    def clear_conditions(self):
+    def _clear_conditions(self):
         self.conditionInfoCards.clear()
         for card in self.winfo_children():
             card.destroy()

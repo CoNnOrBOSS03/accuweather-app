@@ -1,6 +1,5 @@
 import logging
 from customtkinter import *
-from api.accuweather_client import AccuWeatherClient
 from components.weather_display import WeatherDisplay
 
 
@@ -47,7 +46,7 @@ class App(CTk):
         self.weatherDisplay = WeatherDisplay(master=self.rightFrame, api_key=api_key)
         self.weatherDisplay.place(relx=0.05, rely=0.05, relwidth=0.9, relheight=0.8)
         self.toggleUnitsButton = CTkButton(master=self.rightFrame, text="Toggle Units",
-                                           command=self.weatherDisplay.toggle_units)
+                                           command=self.weatherDisplay._toggle_units)
         self.toggleUnitsButton.place(relx=0.05, rely=0.88, relwidth=0.9, relheight=0.07)
 
         # placing widgets

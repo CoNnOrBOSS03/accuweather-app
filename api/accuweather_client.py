@@ -1,9 +1,7 @@
 import json
-import time
 import urllib.request
 import urllib.error
 import urllib.parse
-from config import ACCUWEATHER_API_KEY
 import logging
 
 logging.basicConfig(
@@ -20,8 +18,8 @@ class AccuWeatherClient:
 
     def set_conditions_from_city(self, city: str):
         try:
-            location_key = self.get_location_key(city)
-            curr_conditions = self.get_current_conditions(location_key)
+            location_key = self._get_location_key(city)
+            curr_conditions = self._get_current_conditions(location_key)
             self.conditions = curr_conditions
         except ValueError:
             raise
@@ -34,8 +32,8 @@ class AccuWeatherClient:
         else:
             value = self.conditions[0].get(result_name)
             # handle metric/imperial units
-            if self.in_units(value):
-                return self.get_pretty_units(value)
+            if self._in_units(value):
+                return self._get_pretty_units(value)
             if value is None:
                 return "Value Not Found"
             return {
@@ -43,17 +41,17 @@ class AccuWeatherClient:
                 "value": value
             }
 
-    def in_units(self, conditions_val):  # checks if given value is a dict, and contains
+    def _in_units(self, conditions_val):  # checks if given value has measurement units
         return isinstance(conditions_val, dict) and "Metric" in conditions_val and "Imperial" in conditions_val
 
-    def get_pretty_units(self, conditions_val):
+    def _get_pretty_units(self, conditions_val):  # formats measurement units for display
         return {
             "dual-unit": True,
             "metric": f"{conditions_val['Metric']['Value']} {conditions_val['Metric']['Unit']}",
             "imperial": f"{conditions_val['Imperial']['Value']} {conditions_val['Imperial']['Unit']}"
         }
 
-    def get_data(self, url: str):
+    def _get_data(self, url: str):  # generalizes api requests, passes errors up
         try:
             # print(f"Requesting URL: {url}")
             with urllib.request.urlopen(url) as response:
@@ -72,11 +70,11 @@ class AccuWeatherClient:
         except Exception as e:
             raise Exception(f"An unexpected error occurred: {e}")
 
-    def get_location_key(self, city: str):
+    def _get_location_key(self, city: str):
         encoded_city = urllib.parse.quote(city)
         url = f"{self.base_url}/locations/v1/cities/search?apikey={self.api_key}&q={encoded_city}"
         try:
-            data = self.get_data(url)
+            data = self._get_data(url)
             location_key = data[0]["Key"]
             return location_key
         except ValueError:
@@ -84,12 +82,12 @@ class AccuWeatherClient:
         except Exception as e:
             raise Exception(f"An error occurred while getting the location key: {e}")
 
-    def get_current_conditions(self, location_key):
+    def _get_current_conditions(self, location_key):
         url = f"{self.base_url}/currentconditions/v1/{location_key}?apikey={self.api_key}&details=true"
         try:
-            data = self.get_data(url)
+            data = self._get_data(url)
             return data
-        except ValueError as e:
+        except ValueError:
             raise
-        except Exception as e:
+        except Exception:
             raise
