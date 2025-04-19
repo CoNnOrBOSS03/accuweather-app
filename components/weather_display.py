@@ -1,26 +1,92 @@
 from customtkinter import *
 from api.accuweather_client import AccuWeatherClient
 
+DISPLAYED_CONDITIONS = {
+    "WeatherText": "Conditions",
+    "HasPrecipitation": "Currently Raining",
+    "Temperature": "Temperature",
+    "RelativeHumidity": "Humidity",
+    "UVIndex": "UV Index"
+}
+
 
 class WeatherDisplay(CTkScrollableFrame):
+    class ConditionInfoCard(CTkFrame):
+        def __init__(self, master, condition_name, condition_value_dict):
+            super().__init__(master=master, height=35)
 
-    class ConditionsInfoCard(CTkFrame):
-        def __init__(self, condition_name):
+            self.units = None
+
+            # handling data with metric/imperial units - should be expanded on to handle all accuweather data
+            self.condition_value_dict = condition_value_dict
+            self.condition_value = self.clean_condition_value(self.condition_value_dict)
+
+            self.conditionNameLabel = CTkLabel(master=self, text=f"{condition_name}: ")
+            self.conditionValueLabel = CTkLabel(master=self, text=self.condition_value)
+
+            self.conditionNameLabel.place(relx=0.05, rely=0.1, relwidth=0.5, relheight=0.8)
+            self.conditionValueLabel.place(relx=0.6, rely=0.1, relwidth=0.35, relheight=0.8)
+
+        def toggle_units(self):
+            pass
+
+        def clean_condition_value(self, condition_value_dict: dict):
+            condition_value = ""
+            if condition_value_dict.get("dual-unit") is False:
+                condition_value = condition_value_dict.get('value')
+                if isinstance(condition_value, bool):
+                    condition_value = self.handle_boolean(condition_value)
+            else:
+                self.units = "imperial"
+                condition_value = condition_value_dict.get(self.units)
+            return condition_value
+
+        def handle_boolean(self, bool: bool):
+            if bool:
+                return "Yes"
+            return "No"
 
     def __init__(self, master, api_key):
-        super().__init__(master=master, label_text="Current Conditions", fg_color="transparent")
+        super().__init__(master=master, label_text="Current Conditions")
         self.client: AccuWeatherClient = AccuWeatherClient(api_key=api_key)
+        self.conditionInfoCards = []
 
-
-    def configure_client(self, city_name: str):
+    def set_display(self, city_name: str):
         try:
             self.client.set_conditions_from_city(city_name)
+            self.configure(label_text=f"Current Conditions for {city_name}")
+            print(self.client.get_result("Temperature").get("imperial"))
             print(self.client.get_result("WeatherText"))
 
-            # TODO: add condition info
+            self.clear_conditions()
+            for key, label in DISPLAYED_CONDITIONS.items():
+                condition_value_dict = self.client.get_result(key)
+                self.conditionInfoCards.append(
+                    WeatherDisplay.ConditionInfoCard(
+                        master=self,
+                        condition_name=label,
+                        condition_value_dict=condition_value_dict
+                    )
+                )
+            self.display_conditions()
+
+
         except ValueError:
             raise
         except Exception:
             raise
 
-    def set
+    def display_conditions(self):
+        for card in self.conditionInfoCards:
+            card: WeatherDisplay.ConditionInfoCard
+            card.pack(padx=5, pady=1, fill=X, expand=False)
+
+    def toggle_units(self):
+        for card in self.conditionInfoCards:
+            card: WeatherDisplay.ConditionInfoCard
+            card.toggle_units()
+
+    def clear_conditions(self):
+        self.conditionInfoCards.clear()
+        for card in self.winfo_children():
+            card.destroy()

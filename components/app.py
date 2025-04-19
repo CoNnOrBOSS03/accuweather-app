@@ -60,7 +60,7 @@ class App(CTk):
             self.set_error_text("Please enter a city name!")
             return
         try:
-            self.weatherDisplay.configure_client(city_name)
+            self.weatherDisplay.set_display(city_name)
         except ValueError as e:
             self.set_error_text("City not found: please try again!")
             logging.error(str(e))
